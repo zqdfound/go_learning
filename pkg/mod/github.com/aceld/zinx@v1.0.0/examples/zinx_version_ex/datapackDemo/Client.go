@@ -26,7 +26,7 @@ func main() {
 
 	sendData1, err := dp.Pack(msg1)
 	if err != nil {
-		fmt.Println("client pack msg1 err:", err)
+		fmt.Println("client packs msg1 err:", err)
 		return
 	}
 
