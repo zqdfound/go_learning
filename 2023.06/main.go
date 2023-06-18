@@ -1,15 +1,10 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
-
-type Human struct {
-	Age    int
-	Height float64
-	Sex    bool
-}
+//type Human struct {
+//	Age    int
+//	Height float64
+//	Sex    bool
+//}
 
 //func main() {
 //	//var a Human
@@ -132,11 +127,83 @@ type Human struct {
 //}
 
 // 时间工具
-func main() {
-	t0 := time.Now()
-	fmt.Println(t0.Unix())
-	time.Sleep(50 * time.Millisecond)
-	t1 := time.Now()
-	diff := t1.Sub(t0)
-	fmt.Println(diff.Milliseconds())
-}
+//func main() {
+//	t0 := time.Now()
+//	fmt.Println(t0.Unix())
+//	time.Sleep(50 * time.Millisecond)
+//	t1 := time.Now()
+//	diff := t1.Sub(t0)
+//	fmt.Println(diff.Milliseconds())
+//}
+
+// JSON
+//type Student struct {
+//	Name   string
+//	Age    int
+//	Gender bool
+//}
+//type Class struct {
+//	Id       int
+//	Students []Student
+//}
+//
+//func main() {
+//	s := Student{"张三", 18, false}
+//	c := Class{
+//		Id:       1,
+//		Students: []Student{s, s, s},
+//	}
+//	marshal, err := sonic.Marshal(c) //json序列化
+//	if err != nil {
+//		fmt.Println("序列化失败")
+//		return
+//	}
+//	str := string(marshal)
+//	fmt.Println(str)
+//
+//	var c2 Class
+//	err1 := sonic.Unmarshal(marshal, &c2) //反序列化
+//	if err1 != nil {
+//		fmt.Println("反序列化失败")
+//		return
+//	}
+//	fmt.Println(c2)
+//}
+
+// 包饮用
+//func main() {
+//	fmt.Println(util.Name)
+//	fmt.Println(util.PlusTwo(3, 4))
+//}
+
+// 协程
+//func foo(wg sync.WaitGroup) {
+//	defer wg.Done()
+//	fmt.Println("运行")
+//}
+//func main() {
+//	wg := sync.WaitGroup{}
+//	wg.Add(2)
+//	go foo(wg)
+//	go foo(wg)
+//	//time.Sleep(1 * time.Second)
+//	wg.Wait()
+//}
+
+//func f1() {
+//	defer func() {
+//		err := recover()
+//		if err != nil {
+//			fmt.Println("发生了panic:", err)
+//		}
+//	}()
+//	a, b := -3, 0
+//	fmt.Println(a, b)
+//	_ = a / b //panic
+//	fmt.Println("f1 finished")
+//}
+//func main() {
+//	go f1()
+//	time.Sleep(3 * time.Second)
+//	fmt.Println("main finished")
+//}
