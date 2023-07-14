@@ -1,11 +1,34 @@
 package main
 
+import "fmt"
+
+type People interface {
+	Speak(string) string
+}
+
+type Stduent struct{}
+
+func (stu *Stduent) Speak(think string) (talk string) {
+	if think == "love" {
+		talk = "You are a good boy"
+	} else {
+		talk = "hi"
+	}
+	return
+}
+
+func main() {
+	var peo People = &Stduent{}
+	think := "love"
+	fmt.Println(peo.Speak(think))
+}
+
 //type Human struct {
 //	Age    int
 //	Height float64
 //	Sex    bool
 //}
-
+//
 //func main() {
 //	//var a Human
 //	a := Human{
@@ -18,7 +41,8 @@ package main
 //	fmt.Printf("%+v \n", a)
 //}
 
-//if 语句
+// if 语句
+// if 执行语句;判断条件
 //func main() {
 //	//ab只在if 代码块里面生效
 //	if a, b := true, 10; !a {
@@ -206,4 +230,26 @@ package main
 //	go f1()
 //	time.Sleep(3 * time.Second)
 //	fmt.Println("main finished")
+//}
+
+// 管道
+//
+//	func main() {
+//		ch := make(chan int, 0)
+//
+//		go func() {
+//			ch <- 4
+//			fmt.Println("input")
+//		}()
+//		time.Sleep(2 * time.Second)
+//		go func() {
+//			a <-
+//		}()
+//	}
+//func main() {
+//	r := gin.Default()
+//	r.GET("/", func(context *gin.Context) {
+//		context.String(http.StatusOK, "hello")
+//	})
+//	r.Run(":9999")
 //}
