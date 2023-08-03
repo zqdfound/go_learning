@@ -1,27 +1,14 @@
 package main
 
-import "fmt"
-
-type People interface {
-	Speak(string) string
-}
-
-type Stduent struct{}
-
-func (stu *Stduent) Speak(think string) (talk string) {
-	if think == "love" {
-		talk = "You are a good boy"
-	} else {
-		talk = "hi"
-	}
-	return
-}
-
-func main() {
-	var peo People = &Stduent{}
-	think := "love"
-	fmt.Println(peo.Speak(think))
-}
+//func inc(p *int) {
+//	*p--
+//	fmt.Println(*p)
+//}
+//func main() {
+//	i := 3
+//	inc(&i)
+//	fmt.Println("i=", i)
+//}
 
 //type Human struct {
 //	Age    int
@@ -253,3 +240,7 @@ func main() {
 //	})
 //	r.Run(":9999")
 //}
+
+func main() {
+	key := make([]byte, 16)
+}
