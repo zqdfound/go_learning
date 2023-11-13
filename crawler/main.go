@@ -1,44 +1,28 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
 
-// var (
-//
-//	BaseUrl = "https://movie.douban.com/top250"
-//
-// )
-//
-// // 开始爬取
-//
-//	func Start() {
-//		var movies []parse.DoubanMovie
-//
-//		pages := parse.GetPages(BaseUrl)
-//		for _, page := range pages {
-//			fmt.Sprint(page.Url)
-//			doc, err := goquery.NewDocument(strings.Join([]string{BaseUrl, page.Url}, ""))
-//			if err != nil {
-//				log.Println(err)
-//			}
-//
-//			movies = append(movies, parse.ParseMovies(doc)...)
-//		}
-//
-//		fmt.Println(movies)
-//	}
-//
-//	func main() {
-//		Start()
-//	}
+const (
+	USERNAME = "root"
+	PASSWORD = "root"
+	HOST     = "47.97.122.18"
+	PORT     = "3306"
+	DBNAME   = "douban_movie"
+)
+
 type MovieData struct {
+	Rank     int    `json:"rank"`
 	Title    string `json:"title"`
 	Director string `json:"director"`
 	Picture  string `json:"picture"`
@@ -48,20 +32,48 @@ type MovieData struct {
 	Quote    string `json:"quote"`
 }
 
-func main() {
+var DB *sql.DB
 
-	ch := make(chan bool)
+var wg sync.WaitGroup
+
+func main() {
+	//Init database
+	InitDB()
+
+	//同步方式
 	for i := 0; i < 10; i++ {
-		go Spider(strconv.Itoa(i*25), ch)
+		Spider(strconv.Itoa(i*25), nil)
 	}
-	for i := 0; i < 10; i++ {
-		<-ch
-	}
+
+	//channel方式
+	//ch := make(chan bool)
+	//for i := 0; i < 10; i++ {
+	//	go Spider(strconv.Itoa(i*25), ch)
+	//}
+	//for i := 0; i < 10; i++ {
+	//	<-ch
+	//}
+
+	//wait group方式
+	//wg.Add(10)
+	//startTime := time.Now()
+	//for i := 0; i < 10; i++ {
+	//	go func(i int) {
+	//		defer wg.Done()
+	//		Spider(strconv.Itoa(i*25), nil)
+	//	}(i)
+	//}
+	//wg.Wait()
+	//elapsed := time.Since(startTime)
+	//fmt.Printf("waitgroup used time %s \n", elapsed)
+
 }
 
 func Spider(page string, ch chan bool) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://movie.douban.com/top250?start="+page, nil)
+	url := "https://movie.douban.com/top250?start=" + page
+	fmt.Println(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,6 +111,8 @@ func Spider(page string, ch chan bool) {
 			score = strings.Trim(score, "\n")
 			quote := strings.Trim(s.Find("div.info > div.bd > p.quote > span").Text(), " ")
 			if ok {
+				atoi, _ := strconv.Atoi(page)
+				movieData.Rank = atoi + i + 1
 				movieData.Title = title
 				movieData.Director = director
 				movieData.Picture = imgTmp
@@ -106,8 +120,8 @@ func Spider(page string, ch chan bool) {
 				movieData.Year = year
 				movieData.Score = score
 				movieData.Quote = quote
-				fmt.Println(movieData)
-				//InsertSql(movieData)
+				//fmt.Println(movieData)
+				InsertSql(movieData)
 			}
 		})
 	if ch != nil {
@@ -132,4 +146,37 @@ func InfoSpite(info string) (director, actor, year string) {
 	yearRe, _ := regexp.Compile(`(\d+)`)
 	year = string(yearRe.Find([]byte(info)))
 	return
+}
+
+func InitDB() {
+	path := strings.Join([]string{USERNAME, ":", PASSWORD, "@tcp(", HOST, ":", PORT, ")/", DBNAME, "?charset=utf8"}, "")
+	fmt.Println(path)
+	DB, _ = sql.Open("mysql", path)
+	DB.SetConnMaxLifetime(10)
+	DB.SetMaxIdleConns(5)
+	if err := DB.Ping(); err != nil {
+		fmt.Println("opon database fail")
+		return
+	}
+	fmt.Println("connect success")
+}
+
+func InsertSql(movieData MovieData) bool {
+	tx, err := DB.Begin()
+	if err != nil {
+		fmt.Println("tx fail")
+		return false
+	}
+	stmt, err := tx.Prepare("INSERT INTO movie_data (`Rank`,`Title`,`Director`,`Picture`,`Actor`,`Year`,`Score`,`Quote`) VALUES (?,?, ?, ?,?,?,?,?)")
+	if err != nil {
+		fmt.Println("Prepare fail", err)
+		return false
+	}
+	_, err = stmt.Exec(movieData.Rank, movieData.Title, movieData.Director, movieData.Picture, movieData.Actor, movieData.Year, movieData.Score, movieData.Quote)
+	if err != nil {
+		fmt.Println("Exec fail", err)
+		return false
+	}
+	_ = tx.Commit()
+	return true
 }
