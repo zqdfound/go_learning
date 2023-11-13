@@ -16,9 +16,9 @@ import (
 const (
 	USERNAME = "root"
 	PASSWORD = "root"
-	HOST     = "47.97.122.18"
-	PORT     = "3306"
-	DBNAME   = "douban_movie"
+	HOST     = ""
+	PORT     = ""
+	DBNAME   = ""
 )
 
 type MovieData struct {
